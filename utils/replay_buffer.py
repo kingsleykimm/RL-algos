@@ -11,5 +11,4 @@ class ReplayBuffer(object):
             self.replay.popleft()
         self.replay.append(experience)
     def sample(self):
-
         return random.sample(list(self.replay))
