@@ -13,7 +13,7 @@ class Config:
         self.config_map['discount_factor'] = 0.99
         self.config_map['initial_e'] = 1
         self.config_map['final_e'] = 0.1
-        self.config_map['final_exploration'] = 1e8
+        self.config_map['exploration_steps'] = 1e8
         self.config_map['noop_max'] = 10
         self.config_map['replay_start_size'] = 50000
         self.config_map['game_name'] = 'ALE/Adventure-v5'
