@@ -3,10 +3,11 @@ import numpy as np
 
 
 def make_atari_env(env_name):
-    env = gym.make(env_name, obs_type="rgb")
-    env = AtariPreprocessing(env, noop_max=10, frame_skip=4, grayscale_obs=False)
+    env = gym.make(env_name, obs_type="rgb", frame_skip=1)
+    env = gym.wrappers.AtariPreprocessing(env, frame_skip=4, grayscale_obs=False)
     env = BaseWrapper(env)
     env.reset()
+    
     return env
 
 class BaseWrapper(gym.Wrapper):
