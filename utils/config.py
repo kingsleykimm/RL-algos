@@ -16,6 +16,7 @@ class Config:
         self.config_map['final_exploration'] = 1e8
         self.config_map['noop_max'] = 10
         self.config_map['replay_start_size'] = 50000
+        self.config_map['game_name'] = 'ALE/Adventure-v5'
     def change_param(self, param_name, new_amount):
         if param_name not in self.config_map:
             return KeyError
