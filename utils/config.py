@@ -20,4 +20,7 @@ class Config:
         if param_name not in self.config_map:
             return KeyError
         self.config_map[param_name] = new_amount
-
+    def get_param(self, param_name):
+        if param_name not in self.config_map:
+            return KeyError
+        return self.config_map[param_name]
