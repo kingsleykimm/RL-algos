@@ -2,13 +2,14 @@ import gymnasium as gym
 import numpy as np
 
 
-def make_atari_env(env_name):
-    env = gym.make(env_name, obs_type="rgb", frame_skip=1)
-    env = gym.wrappers.AtariPreprocessing(env, frame_skip=4, grayscale_obs=False)
-    env = BaseWrapper(env)
-    env.reset()
+class AtariEnv():
+    def __init__(self, env_name):
+        self.env = gym.make(env_name, obs_type="rgb", frame_skip=1)
+        self.env = gym.wrappers.AtariPreprocessing(self.env, frame_skip=4, grayscale_obs=False)
+        self.env = BaseWrapper(self.env)
+    def get_first_state(self):
+        return self.env.reset()
     
-    return env
 
 class BaseWrapper(gym.Wrapper):
     def __init__(self, env):
