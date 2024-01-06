@@ -10,6 +10,7 @@ class DQN(nn.Module):
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
         self.hidden1 = nn.Linear(7 * 7 * 64, 512)
         self.output = nn.Linear(512, n_actions)
+        self.apply(self.init_weights())   
     def forward(self, x):
         y = F.relu(self.conv1(x))
         y = F.relu(self.conv2(y))
@@ -18,3 +19,6 @@ class DQN(nn.Module):
         y = F.relu(self.hidden1(y))
         y = self.output(y)
         return y
+    def init_weights(self, m):
+        nn.init.xavier_uniform_(m.weight)
+        m.bias.data.fill_(0.01)
