@@ -10,6 +10,6 @@ class ReplayBuffer(object):
         if len(self.replay) == self.capacity:
             self.replay.popleft()
         self.replay.append(experience)
-    def sample(self, batch_size):
+    def sample(self, batch_size=1):
 
         return random.sample(list(self.replay), batch_size)

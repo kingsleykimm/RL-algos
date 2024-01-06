@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-
+import torch
 
 class AtariEnv():
     def __init__(self, env_name):
@@ -8,7 +8,8 @@ class AtariEnv():
         self.env = gym.wrappers.AtariPreprocessing(self.env, frame_skip=4, grayscale_obs=False)
         self.env = BaseWrapper(self.env)
     def get_first_state(self):
-        return self.env.reset()
+        cur, info = self.env.reset()
+        return torch.from_numpy(cur), info
     
 
 class BaseWrapper(gym.Wrapper):
@@ -24,4 +25,4 @@ class BaseWrapper(gym.Wrapper):
         else:
             self.total_rewards += reward
             info['episodic_return'] = None
-        return obsv, reward, term, trunc, info
+        return torch.from_numpy(obsv), reward, term, trunc, info
