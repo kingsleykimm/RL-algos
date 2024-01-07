@@ -6,24 +6,24 @@ from utils import *
 import random
 import torch
 class DQNAgent():
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.network = DQN()
         self.target_network = DQN()
         self.target_network.load_state_dict(self.network.state_dict())
-        self.config = Config()
-        self.replay_buffer = ReplayBuffer(self.config.get_param("replay_size"))
-        self.env = AtariEnv(self.config.get_param('game_name'))
-        self.optimizer = torch.optim.RMSprop(self.network.parameters(), lr=2.5e-4, momentum=0.95, eps=0.01, alpha=0.95)
+        self.replay_buffer = ReplayBuffer(self.config.replay_size)
+        self.env = AtariEnv(self.config.game_name)
+        self.optimizer = self.config.optimizer(self.network.parameters())
         self.param_updates = 0
     def run(self):
-        M = self.config.get_param('episode_steps')
-        T = self.config.get_param('max_time')
-        network_update = self.config.get_param('network_update_freq')
-        initial_e = self.config.get_param('inital_e')
-        final_e = self.config.get_param('final_e')
-        discount_factor = self.config.get_param('discount_factor')
-        exploration_steps = self.config.get_param('exploration_steps')
-        batch_size = self.config.get_param('minibatch_size')
+        M = self.config.episode_steps
+        T = self.config.max_time
+        network_update = self.config.network_update_freq
+        initial_e = self.config.initial_e
+        final_e = self.config.final_e
+        self.discount_factor = self.config.discount_factor
+        exploration_steps = self.config.exploration_steps
+        batch_size = self.config.minibatch_size
         annealer = LinearAnnealer(initial_e, final_e, exploration_steps)
         print('setup complete')
         self.populate_memory()
@@ -35,7 +35,7 @@ class DQNAgent():
                 random_val = random.random()
                 action = None
                 if random_val <= annealer.incr():
-                    action = self.env.action_space.sample()
+                    action = self.env.random_action()
                     # select a random action
                 else:
                     action = torch.argmax(self.network(cur_state))
@@ -70,11 +70,11 @@ class DQNAgent():
 
 
     def populate_memory(self):
-        start_size = self.config.get_param('replay_start_size')
+        start_size = self.config.replay_start_size
         counter = 0
         cur_state, info = self.env.get_first_state()
         while counter < start_size // 4:
-            action = self.env.action_space.sample()
+            action = self.env.random_action()
             obsv, reward, term, trunc, info = self.env.step(action)
             self.replay_buffer.add_experience((cur_state, action, reward, obsv))
             cur_state = obsv

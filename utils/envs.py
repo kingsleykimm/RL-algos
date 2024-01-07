@@ -4,13 +4,16 @@ import torch
 
 class AtariEnv():
     def __init__(self, env_name):
-        self.env = gym.make(env_name, obs_type="rgb", frame_skip=1)
-        self.env = gym.wrappers.AtariPreprocessing(self.env, frame_skip=4, grayscale_obs=False)
+        self.env = gym.make(env_name, obs_type="rgb", frameskip=1)
+        self.env = gym.wrappers.AtariPreprocessing(self.env, grayscale_obs=False)
         self.env = BaseWrapper(self.env)
     def get_first_state(self):
         cur, info = self.env.reset()
         return torch.from_numpy(cur), info
-    
+    def random_action(self):
+        return self.env.action_space.sample()
+    def step(self):
+        return self.env.step()
 
 class BaseWrapper(gym.Wrapper):
     def __init__(self, env):

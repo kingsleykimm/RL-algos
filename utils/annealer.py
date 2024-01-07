@@ -4,7 +4,7 @@ class LinearAnnealer(object):
         self.start = start
         self.end = end
         self.cur = start
-        self.incr = float((end - start) / steps)
+        self.incr = (end - start) / float(steps)
         if start < end:
             self.bound = min
         self.bound = max
