@@ -1,14 +1,15 @@
 
 
 # steps: episodic step and a normal step
-from ..networks.dqn import DQN
-from ..utils import *
+from networks import *
+from utils import *
 import random
 import torch
 class DQNAgent():
     def __init__(self):
-        self.network = DQN
-        self.target_network = self.network.clone()
+        self.network = DQN()
+        self.target_network = DQN()
+        self.target_network.load_state_dict(self.network.state_dict())
         self.config = Config()
         self.replay_buffer = ReplayBuffer(self.config.get_param("replay_size"))
         self.env = AtariEnv(self.config.get_param('game_name'))
@@ -24,6 +25,7 @@ class DQNAgent():
         exploration_steps = self.config.get_param('exploration_steps')
         batch_size = self.config.get_param('minibatch_size')
         annealer = LinearAnnealer(initial_e, final_e, exploration_steps)
+        print('setup complete')
         self.populate_memory()
         for episode_i in range(M):
             # s1 = {x1}, where x1 is the image

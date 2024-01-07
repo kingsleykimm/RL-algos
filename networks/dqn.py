@@ -4,13 +4,13 @@ import torch.nn.functional as F
 
 class DQN(nn.Module):
     def __init__(self, n_actions=18):
-        super().__init__()
+        super(DQN, self).__init__()
         self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
         self.hidden1 = nn.Linear(7 * 7 * 64, 512)
         self.output = nn.Linear(512, n_actions)
-        self.apply(self.init_weights())   
+        self.apply(self.init_weights)
     def forward(self, x):
         y = F.relu(self.conv1(x))
         y = F.relu(self.conv2(y))
@@ -20,5 +20,6 @@ class DQN(nn.Module):
         y = self.output(y)
         return y
     def init_weights(self, m):
-        nn.init.xavier_uniform_(m.weight)
-        m.bias.data.fill_(0.01)
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            m.bias.data.fill_(0.01)

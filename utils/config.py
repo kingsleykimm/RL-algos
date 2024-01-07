@@ -1,4 +1,4 @@
-
+import torch.nn as nn
 import argparse
 import torch
 class Config:
@@ -17,6 +17,8 @@ class Config:
         self.config_map['noop_max'] = 10
         self.config_map['replay_start_size'] = 50000
         self.config_map['game_name'] = 'ALE/Adventure-v5'
+        self.config_map['episode_steps'] = 2000
+        self.config_map['max_time'] = 1000
     def change_param(self, param_name, new_amount):
         if param_name not in self.config_map:
             return KeyError
