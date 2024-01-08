@@ -25,8 +25,8 @@ class DQNAgent():
         exploration_steps = self.config.exploration_steps
         batch_size = self.config.minibatch_size
         annealer = LinearAnnealer(initial_e, final_e, exploration_steps)
-        print('setup complete')
         self.populate_memory()
+        print('Memory populated, starting training')
         for episode_i in range(M):
             # s1 = {x1}, where x1 is the image
             # initialize sequence, basically get first state
@@ -40,12 +40,12 @@ class DQNAgent():
                 else:
                     action = torch.argmax(self.network(cur_state))
                     # argmax from the network when inputted the new state
+                print(action)
                 obsv, reward, term, trunc, info = self.env.step(action)
                 self.replay_buffer.add_experience((cur_state, action, reward, obsv, term or trunc))
                 cur_state = obsv
                 # sample minibatch, but only after replay_start_size is finished
                 if time_step % 4 == 0: #update frequency
-
                     minibatch = self.replay_buffer.sample(batch_size)
                     loss = self.get_batch_loss(minibatch)
                     self.optimizer.zero_grad()

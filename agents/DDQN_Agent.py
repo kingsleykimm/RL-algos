@@ -4,8 +4,8 @@ from utils import *
 import random
 import torch
 class DDQNAgent(DQNAgent):
-    def __init__(self):
-        super().__init__(self)
+    def __init__(self, config):
+        super().__init__(self, config)
     def get_batch_loss(self, batch):
         for experience in batch:
             target = torch.Tensor()

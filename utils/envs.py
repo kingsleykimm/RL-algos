@@ -12,8 +12,8 @@ class AtariEnv():
         return torch.from_numpy(cur), info
     def random_action(self):
         return self.env.action_space.sample()
-    def step(self):
-        return self.env.step()
+    def step(self, action):
+        return self.env.step(action)
 
 class BaseWrapper(gym.Wrapper):
     def __init__(self, env):
