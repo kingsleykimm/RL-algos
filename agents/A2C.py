@@ -8,6 +8,7 @@ class A2CAgent():
         self.network = A2C(action_value=False)
         self.env = AtariEnv(config.game_name)
         self.storage = EpisodeRollout(self.config.rollout_length)
+        self.optimizer = self.config.optimizer(self.network.parameters())
     def run(self):
         num_episodes = self.episode_steps
         for episode_ind in range(num_episodes):
@@ -34,7 +35,7 @@ class A2CAgent():
         for i in range(len(self.storage.values) - 1, -1, -1):
             q = self.storage.rewards[i] + self.config.discount_factor * (1 - self.storage.dones[i]) * q
             q_vals[i] = q
-        advantage = torch.Tensor(q_vals) - torch.Tensor(self.storage.values) # Q(s, a) - V(s) for all time steps | or using the equation above
+        advantage = torch.Tensor(q_vals) - torch.Tensor(self.storage.values) # Q(s, a) - V(s) for all time steps | or using the equation above since we only have Value functions
         critic_loss = advantage.pow(2).mean()
         log_probs = -1 * torch.Tensor(self.storage.log_probs)
         actor_loss = torch.mul(log_probs, advantage.detach()).mean()
