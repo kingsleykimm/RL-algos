@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
+from torch.distributions import Categorical
 
 class DQN(nn.Module):
     def __init__(self, n_actions=18):
@@ -48,3 +49,32 @@ class DuelingDQN(nn.Module):
         if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
             nn.init.xavier_uniform_(m.weight)
             m.bias.data.fill_(0.01)
+
+
+            
+# A2C implements the same network structure as DQN, but it takes a prob distribution over the actions using a softmax.
+class A2C(nn.Module):
+    def __init__(self, n_actions=18):
+        super(A2C, self).__init__()
+        self.feature_dim = 256
+        self.conv1 = nn.Conv2d(4, 16, kernel_size=8, stride=4)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=4, stride=2)
+        self.fc1 = nn.Linear(9 * 9 * 32, self.feature_dim)
+        self.actor = nn.Linear(self.feature_dim, n_actions) # need to put a probability distribution on this
+        self.critic= nn.Linear(self.feature_dim, 1) # value state function
+    def forward(self ,x):
+        y = F.relu(self.conv1(x))
+        y = F.relu(self.conv2(y))
+        y = y.view(y.size(0), -1)
+        y = F.relu(self.fc1(y))
+        policy = self.actor(y)
+        state = self.critic(y)
+        return policy, torch.squeeze(state)
+    def policy_action(self, state):
+        policy, state_value = self(state)
+        distribution = F.softmax(policy, dim=-1)
+        cat = Categorical(distribution)
+        action = cat.sample()
+        return action, cat.log_prob(action), state_value
+
+        

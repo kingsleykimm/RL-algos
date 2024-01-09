@@ -19,3 +19,7 @@ class Config:
         self.episode_steps = 2000
         self.max_time = 1000
         self.optimizer = None
+        self.actor_threads = 16
+        self.rollout_length = 5
+        self.actor_lr = None
+        self.policy_lr = None

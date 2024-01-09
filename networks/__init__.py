@@ -1,1 +1,1 @@
-from .dqn import *
+from .network import *

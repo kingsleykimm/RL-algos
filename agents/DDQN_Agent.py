@@ -17,6 +17,7 @@ class DDQNAgent(DQNAgent):
                 else:
                     with torch.no_grad():
                         val = reward_j + self.discount_factor * self.network(s_j_1)[torch.argmax(self.target_network(s_j_1))]
+                        target.add(val)
                 q.add(self.network(s_j)[action_j])
         loss = (target - q).square().mean()
         return loss
