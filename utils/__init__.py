@@ -1,4 +1,4 @@
 from .config import *
 from .envs import *
-from .replay_buffer import *
+from .storages import *
 from .annealer import *

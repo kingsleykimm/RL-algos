@@ -54,14 +54,18 @@ class DuelingDQN(nn.Module):
             
 # A2C implements the same network structure as DQN, but it takes a prob distribution over the actions using a softmax.
 class A2C(nn.Module):
-    def __init__(self, n_actions=18):
+    def __init__(self, n_actions=18, action_value=True):
         super(A2C, self).__init__()
         self.feature_dim = 256
         self.conv1 = nn.Conv2d(4, 16, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=4, stride=2)
+        self.action_value = action_value
         self.fc1 = nn.Linear(9 * 9 * 32, self.feature_dim)
         self.actor = nn.Linear(self.feature_dim, n_actions) # need to put a probability distribution on this
-        self.critic= nn.Linear(self.feature_dim, 1) # value state function
+        if action_value:
+            self.critic = nn.Linear(self.feature_dim, n_actions)
+        else:    
+            self.critic= nn.Linear(self.feature_dim, 1) # value state function
     def forward(self ,x):
         y = F.relu(self.conv1(x))
         y = F.relu(self.conv2(y))
@@ -69,12 +73,16 @@ class A2C(nn.Module):
         y = F.relu(self.fc1(y))
         policy = self.actor(y)
         state = self.critic(y)
+        if self.action_value:
+            return policy, state
         return policy, torch.squeeze(state)
     def policy_action(self, state):
         policy, state_value = self(state)
         distribution = F.softmax(policy, dim=-1)
         cat = Categorical(distribution)
         action = cat.sample()
+        if self.action_value:
+            return action, cat.log_prob(action), state_value[action]
         return action, cat.log_prob(action), state_value
 
         
