@@ -53,9 +53,9 @@ class DuelingDQN(nn.Module):
 
             
 # A2C implements the same network structure as DQN, but it takes a prob distribution over the actions using a softmax.
-class A2C(nn.Module):
+class ActorCritic(nn.Module):
     def __init__(self, n_actions=18, action_value=True):
-        super(A2C, self).__init__()
+        super(ActorCritic, self).__init__()
         self.feature_dim = 256
         self.conv1 = nn.Conv2d(4, 16, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=4, stride=2)
@@ -82,7 +82,7 @@ class A2C(nn.Module):
         cat = Categorical(distribution)
         action = cat.sample()
         if self.action_value:
-            return action, cat.log_prob(action), state_value[action]
-        return action, cat.log_prob(action), state_value
+            return action, cat.log_prob(action), state_value[action], cat.entropy().mean()
+        return action, cat.log_prob(action), state_value, cat.entropy().mean()
 
         
