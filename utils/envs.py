@@ -13,7 +13,21 @@ class AtariEnv():
     def random_action(self):
         return self.env.action_space.sample()
     def step(self, action):
+        action = torch.Tensor.numpy(action)
         return self.env.step(action)
+    
+class AtariVecEnv():
+    def __init__(self, env_name, num_envs):
+        self.envs = gym.vector.make(env_name, frameskip=1, num_envs=num_envs, wrappers=[gym.wrappers.AtariPreprocessing, BaseWrapper])
+    def get_first_state(self):
+        states, info = self.envs.reset()
+        return torch.from_numpy(states), info
+    def random_action(self):
+        return self.envs.single_action_space.sample()
+    def step(self, actions):
+        actions = torch.Tensor.numpy(actions)
+        observations, rewards, terminations, trunactions, infos = self.envs.step(actions)
+        return observations, rewards, terminations, trunactions, infos
 
 class BaseWrapper(gym.Wrapper):
     def __init__(self, env):

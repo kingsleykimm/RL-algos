@@ -23,3 +23,6 @@ class Config:
         self.rollout_length = 5
         self.actor_lr = None
         self.policy_lr = None
+        self.entropy_coeff = None
+        self.num_envs = None
+        self.surrogate_clip = None

@@ -9,6 +9,7 @@ class A2CAgent():
         self.env = AtariEnv(config.game_name)
         self.storage = EpisodeRollout(self.config.rollout_length)
         self.optimizer = self.config.optimizer(self.network.parameters())
+        # need to put an annealer here
         self.entropy_coeff = self.config.entropy_coeff
     def run(self):
         num_episodes = self.episode_steps

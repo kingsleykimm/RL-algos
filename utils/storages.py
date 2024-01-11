@@ -29,3 +29,19 @@ class EpisodeRollout():
         self.dones.append(done)
         self.log_probs.append(log_prob)
     # could add the compute loss function here, but it's better to modularize in the A2C/A3C classes
+
+# class MultiEnvRollouts():
+#     def __init__(self, size, num_envs):
+#         self.capacity = size
+#         self.num_envs = num_envs
+#         self.values = [[] for _ in range(num_envs)]
+#         self.log_probs = [[] for _ in range(num_envs)]
+#         self.dones = [[] for _ in range(num_envs)]
+#         self.rewards = [[] for _ in range(num_envs)]
+#         self.actions = [[] for _ in range(num_envs)]
+#     def add_step(self, step):
+#         actions, log_probs, values, rewards, dones = step
+
+        
+        
+

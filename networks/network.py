@@ -85,4 +85,31 @@ class ActorCritic(nn.Module):
             return action, cat.log_prob(action), state_value[action], cat.entropy().mean()
         return action, cat.log_prob(action), state_value, cat.entropy().mean()
 
-        
+
+class PPOActorCritic(nn.Module):
+    def __init__(self, num_actions=18):
+        self.feature_extraction = nn.Sequential(
+            nn.Conv2d(4, 32, kernel_size=8, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(7 * 7 * 64, 512),
+            nn.Relu()
+        )
+        self.critic = nn.Linear(512, 1)
+        self.actor = nn.Linear(512, num_actions)
+    def forward(self, x): # x is multiple
+        hidden = self.feature_extraction(x)
+        critic = self.critic(hidden) #V(s)
+        actor = self.actor(hidden)
+        return actor, critic
+    def get_batch_actions(self, states):
+        actor, critic = self(states)
+        # actor will be a tensor of num_envs * states, and we want to sum along the num_envs axis
+        distribution = F.softmax(actor, dim=-1) # softmax dim -1 does it across the states for each envs
+        cat = Categorical(distribution)
+        action = cat.sample(len(states)) # because it's batched
+        return action, cat.log_prob(action), critic, cat.entropy().mean()
