@@ -21,8 +21,9 @@ class Config:
         self.optimizer = None
         self.actor_threads = 16
         self.rollout_length = 5
-        self.actor_lr = None
-        self.policy_lr = None
+        self.lr = None
         self.entropy_coeff = None
         self.num_envs = None
         self.surrogate_clip = None
+        self.minibatch_n = None
+        self.update_epochs = None

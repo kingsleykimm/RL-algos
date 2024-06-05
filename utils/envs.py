@@ -1,7 +1,20 @@
 import gymnasium as gym
 import numpy as np
 import torch
+import dm_env
 
+
+class MujocoEnv():
+    def __init__(self, env_name):
+        self.env = gym.make(env_name)
+        self.action_space = self.env.action_space
+        self.obs_space = self.env.observation_space
+    def get_first_state(self):
+        cur, info = self.env.reset()
+        return cur, info
+    def step(self, action):
+        action = torch.Tensor.numpy(action)
+        return self.env.step(action)
 class AtariEnv():
     def __init__(self, env_name):
         self.env = gym.make(env_name, obs_type="rgb", frameskip=1)

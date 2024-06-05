@@ -2,8 +2,8 @@ import numpy as np
 import random
 from collections import deque
 import torch
-
-class ReplayBuffer(object):
+from torch.utils.data import Dataset
+class OldReplayBuffer(object):
     def __init__(self, N):
         self.replay = deque()
         self.capacity = N
@@ -15,19 +15,33 @@ class ReplayBuffer(object):
 
         return random.sample(list(self.replay), batch_size)
 
-class EpisodeRollout():
-    def __init__(self, size):
-        self.capacity = size
-        self.values = []
-        self.log_probs = []
-        self.dones = []
-        self.rewards = []
-    def add_step(self, step):
-        reward, log_prob, value, done = step
-        self.values.append(value)
-        self.rewards.append(reward)
-        self.dones.append(done)
-        self.log_probs.append(log_prob)
+class ReplayBuffer(Dataset):
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.buffer = []
+        
+    def add(self, state, action, reward, next_state, done):
+        if len(self.buffer) >= self.capacity:
+            self.buffer.pop(0)
+        self.buffer.append((state, action, reward, next_state, done))
+        
+    def __getitem__(self, index):
+        return self.buffer[index]
+    
+    def sample(self, batch_size=32):
+        samples = random.sample(self.buffer, batch_size)
+        states, actions, rewards, next_states, dones = [], [], [], [], []
+        for state, action, reward, next_state, done in samples:
+            states.append(state)
+            actions.append(action)
+            rewards.append(reward)
+            next_states.append(next_state)
+            dones.append(done)
+        return states, actions, rewards, next_states, dones
+    
+    def __len__(self):
+        return len(self.buffer)
+
     # could add the compute loss function here, but it's better to modularize in the A2C/A3C classes
 
 # class MultiEnvRollouts():
