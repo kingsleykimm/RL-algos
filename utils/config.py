@@ -5,8 +5,8 @@ class Config:
     DEVICE = torch.device('cpu')
     DEFAULT_REPLAY = 'experience_replay'
     def __init__(self):
-        self.minibatch_size = 32
-        self.replay_size = 1e8
+        self.batch_size = 32
+        self.replay_size = 10e6
         self.n_step = 4
         self.network_update_freq = 1e5
         self.discount_factor = 0.99
@@ -18,12 +18,9 @@ class Config:
         self.game_name = 'ALE/Adventure-v5'
         self.episode_steps = 2000
         self.max_time = 1000
-        self.optimizer = None
-        self.actor_threads = 16
         self.rollout_length = 5
-        self.lr = None
-        self.entropy_coeff = None
-        self.num_envs = None
-        self.surrogate_clip = None
-        self.minibatch_n = None
-        self.update_epochs = None
+        self.lr = 3e-4
+        self.tau = 0.005
+        self.update_interval = 1
+        self.gradient_steps = 1
+        self.env_steps = 3e6

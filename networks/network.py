@@ -38,6 +38,7 @@ class DeterministicPolicy(nn.Module):
             self.action_space = (action_space.high - action_space.low) / 2. # range bounds
             self.action_bias = (action_space.high + action_space.low) / 2. # bias is average
     def forward(self, x):
+        x = torch.tensor(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = torch.tanh(self.fc3(x))
@@ -45,6 +46,7 @@ class DeterministicPolicy(nn.Module):
         # scale the action + bias it, since tanh is between -1 and 1, since it's centered around 0, and then move it towards the bias
     # use reparameterization trick here
     def sample(self, input_state):
+        input_state = torch.tensor(input_state)
         x = self.forward(input_state)
         noise = self.noise.normal_(0., 0.1)
         noise = noise.clamp(-0.25, 0.25)
@@ -68,6 +70,7 @@ class GuassianPolicy(nn.Module):
             self.action_bias = torch.FloatTensor((action_space.high + action_space.low) / 2.)
 
     def forward(self, x):
+        x = torch.Tensor(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
 
@@ -106,7 +109,8 @@ class QNetwork(nn.Module):
         self.apply(weights_init)
     
     def forward(self, states, actions):
-
+        states = torch.Tensor(states)
+        actions = torch.Tensor(actions)
         x = torch.cat([states, actions], 1)
         # Two dueling network, take min of it
         x1 = F.relu(self.linear1(x))
@@ -121,13 +125,14 @@ class QNetwork(nn.Module):
     
 class ValueNetwork(nn.Module):
     def __init__(self, n_states, hidden_dim=256):
-        
+        super(ValueNetwork, self).__init__()
         self.linear1 = nn.Linear(n_states, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
         self.linear3 = nn.Linear(hidden_dim, 1)
 
         self.apply(weights_init)
     def forward(self, x):
+        x = torch.tensor(x)
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
         x  = F.relu(self.linear3(x))
@@ -145,6 +150,7 @@ class DQN(nn.Module):
         self.output = nn.Linear(512, n_actions)
         self.apply(self.init_weights)
     def forward(self, x):
+        x = torch.tensor(x)
         y = F.relu(self.conv1(x))
         y = F.relu(self.conv2(y))
         y = F.relu(self.conv3(y))
@@ -167,6 +173,7 @@ class DuelingDQN(nn.Module):
         self.statelayer = nn.Linear(128, 1)
         self.advantagelayer = nn.Linear(128, n_actions)
     def forward(self, x):
+        x = torch.tensor(x)
         y = F.relu(self.conv1(x))
         y = F.relu(self.conv2(y))
         y = F.relu(self.conv3(y))

@@ -7,13 +7,14 @@ import dm_env
 class MujocoEnv():
     def __init__(self, env_name):
         self.env = gym.make(env_name)
-        self.action_space = self.env.action_space
-        self.obs_space = self.env.observation_space
+        self.action_space = self.env.action_space.shape[0]
+        self.obs_space = self.env.observation_space.shape[0]
+
     def get_first_state(self):
         cur, info = self.env.reset()
         return cur, info
-    def step(self, action):
-        action = torch.Tensor.numpy(action)
+    def step(self, action : torch.Tensor):
+        action = action.detach().numpy()
         return self.env.step(action)
 class AtariEnv():
     def __init__(self, env_name):
