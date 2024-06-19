@@ -29,14 +29,18 @@ class ReplayBuffer(Dataset):
         return self.buffer[index]
     
     def sample(self, batch_size=32):
+        print(len(self.buffer), batch_size)
         samples = random.sample(self.buffer, batch_size)
-        states, actions, rewards, next_states, dones = [], [], [], [], []
+        states, actions, rewards, next_states, dones = torch.Tensor(), torch.Tensor(), torch.Tensor(), torch.Tensor(), torch.Tensor()
         for state, action, reward, next_state, done in samples:
-            states.append(state)
-            actions.append(action)
-            rewards.append(reward)
-            next_states.append(next_state)
-            dones.append(done)
+            states.add(state)
+            actions.add(action)
+            rewards.add(reward)
+            next_states.add(next_state)
+            if done:
+                dones.add(1)
+            else:
+                dones.add(0)
         return states, actions, rewards, next_states, dones
     
     def __len__(self):

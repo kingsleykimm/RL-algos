@@ -9,24 +9,40 @@ class SAC():
     def __init__(self, config, 
                  env : MujocoEnv,
                  num_states, # environment / state / observation size
-                  num_actions):
+                  num_actions,
+                  device):
         # off policy SAC
         self.config = config
+        self.device = device
         self.replay_buffer = ReplayBuffer(self.config.replay_size)
         self.sampler = DataLoader(self.replay_buffer)
-        self.value_network = ValueNetwork(num_states) # remember to put in action scaling
-        self.target_value_network = ValueNetwork(num_states)
+        self.value_network = ValueNetwork(num_states).to(device) # remember to put in action scaling
+        self.target_value_network = ValueNetwork(num_states).to(device)
         self.target_value_network.load_state_dict(self.value_network.state_dict())
-        self.q_networks = QNetwork(num_states, num_actions)
-        self.policy = GuassianPolicy(num_actions, num_states)
+        self.q_networks = QNetwork(num_states, num_actions).to(device)
+        self.policy = GuassianPolicy(num_actions, num_states).to(device)
         self.env : MujocoEnv = env
         self.target_update = 1
         self.step_counter = 0
+        self.action_space = env.action_space
         # Optimizers
         self.value_optim = Adam(self.value_network.parameters(), lr=self.config.lr)
         self.q_optim = Adam(self.q_networks.parameters(), lr=self.config.lr)
         self.actor_optim = Adam(self.policy.parameters(), lr=self.config.lr)
     def train(self):
+        
+        first_state, info = self.env.get_first_state()
+        cur_state = first_state
+        for i in range(int(self.config.exploration_steps)): # 3 initial episodes to fill buffer
+            rand_action = self.random_action()
+            obs, reward, term, trunc, info = self.env.step(rand_action)
+            self.replay_buffer.add(torch.from_numpy(cur_state), rand_action, reward, torch.from_numpy(obs), term)
+            cur_state = obs
+            if term or trunc:
+                cur_state, info = self.env.get_first_state()
+                continue
+
+
         while self.step_counter < self.config.env_steps:
             
             # new_state, means get starting state
@@ -36,10 +52,11 @@ class SAC():
             while True:
                 self.step_counter += 1
                 
-                logger.info("Iteration: %d", self.step_counter)
+                print("Iteration: ", self.step_counter)
                 action, log_prob, linear_output = self.select_action(cur_state)
+                print(action)
                 obs, reward, term, trunc, info = self.env.step(action)
-                self.replay_buffer.add(cur_state, action, reward, obs, log_prob)
+                self.replay_buffer.add(torch.from_numpy(cur_state), action, reward, torch.from_numpy(obs), term)
                 if self.step_counter == self.config.env_steps:
                     break
                 if term or trunc:
@@ -55,14 +72,15 @@ class SAC():
 
     def select_action(self, state):
         return self.policy.sample(state)
-
+    def random_action(self):
+        rand_action = torch.empty(self.action_space)
+        for ind, value in enumerate(rand_action):
+            rand_action[ind] = random.uniform(-1, 1)
+        return rand_action
     def calculate_loss(self):
+        print("Calculating Loss")
         states, actions, rewards, next_states, mask_batch = self.replay_buffer.sample(batch_size=self.config.batch_size)
-
-        states = torch.tensor(states)
-        actions = torch.tensor(actions)
-        rewards = torch.tensor(rewards) 
-        next_states = torch.tensor(next_states)
+        print(mask_batch)
         mask_batches = torch.tensor(mask_batch) # this is the dones, we don't want to train on ending states
         with torch.no_grad():
             next_state_values = self.value_network(states)

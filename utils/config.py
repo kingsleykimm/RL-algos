@@ -12,7 +12,7 @@ class Config:
         self.discount_factor = 0.99
         self.initial_e = 1
         self.final_e = 0.1
-        self.exploration_steps = 1e8
+        self.exploration_steps = 1e4
         self.noop_max = 30
         self.replay_start_size = 50000
         self.game_name = 'ALE/Adventure-v5'

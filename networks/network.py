@@ -132,7 +132,6 @@ class ValueNetwork(nn.Module):
 
         self.apply(weights_init)
     def forward(self, x):
-        x = torch.tensor(x)
         x = F.relu(self.linear1(x))
         x = F.relu(self.linear2(x))
         x  = F.relu(self.linear3(x))
